@@ -40,11 +40,12 @@ indicating whether an element was found or not."
   "Creates a new weak pointer which points to OBJECT. For
    portability reasons, OBJECT most not be NIL."
   (assert (not (null object)))
-  (or (trivial-garbage:make-weak-pointer object)
+  (if (trivial-garbage:supports-weak-pointers-p)
+      (trivial-garbage:make-weak-pointer object)
       object))
 
 (defun weak-pointer-value (object)
-  (if (trivial-garbage:weak-pointer-p object)
+  (if (trivial-garbage:supports-weak-pointers-p)
       (trivial-garbage:weak-pointer-value object)
       object))
 
