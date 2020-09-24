@@ -39,10 +39,11 @@ indicating whether an element was found or not."
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (let* ((value (list t))
          (nowhere (make-broadcast-stream))
-         (can-make-weak-pointer (not (null (trivial-garbage:make-weak-pointer value)))))
+         (can-make-weak-pointer (trivial-garbage:weak-pointer-p
+                                 (trivial-garbage:make-weak-pointer value))))
     ;; Keep the value live.
     (print value nowhere)
-    (defvar *can-make-weak-pointer* can-make-weak-pointer)
+    (defconstant +can-make-weak-pointer+ (not (not can-make-weak-pointer)))
     (unless can-make-weak-pointer
       (warn "No support for weak pointers in this implementation. ~
          Things may get big and slow."))))
@@ -51,11 +52,11 @@ indicating whether an element was found or not."
   "Creates a new weak pointer which points to OBJECT. For
    portability reasons, OBJECT most not be NIL."
   (assert (not (null object)))
-  (if *can-make-weak-pointer*
+  (if +can-make-weak-pointer+
       (trivial-garbage:make-weak-pointer object)
       object))
 
 (defun weak-pointer-value (object)
-  (if *can-make-weak-pointer*
+  (if +can-make-weak-pointer+
       (trivial-garbage:weak-pointer-value object)
       object))
